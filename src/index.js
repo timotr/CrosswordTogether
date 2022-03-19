@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+window.onbeforeunload = function() { return "Your work will be lost."; };
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
