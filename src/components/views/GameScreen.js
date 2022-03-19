@@ -63,7 +63,7 @@ export default function GameScreen(props) {
     };
 
     const handleArrowKeys = e => {
-        if (e.ctrlKey || e.metaKey) {
+        if (e.ctrlKey || e.metaKey || e.altKey) {
             switch (e.keyCode) {
                 case 38: setZoomLevel(prev => prev*0.75); break; // up
                 case 40: setZoomLevel(prev => prev*1.5); break; // down
@@ -114,7 +114,7 @@ export default function GameScreen(props) {
 
     // Create new room
     useEffect(() => {
-        const ws = new WebSocket("ws://localhost:3001");
+        const ws = new WebSocket("ws://192.168.1.5:3001");
         ws.addEventListener("open", () => {
             console.log("We are connected");
             ws.addEventListener("message", handleIncomingMessage);
@@ -231,6 +231,7 @@ export default function GameScreen(props) {
             <Grid
                 gridSize={gridSize}
                 cellSize={cellSize}
+                gridPosition={gridPosition}
             >{gridSchema.map((cellType, i) => {
                 let colors = getCellPlayerColors(getX(i), getY(i));
                 if (cellType === 1 && colors.length === 0) {
@@ -274,6 +275,7 @@ const Header = styled.div`
 const GridContainer = styled.div`
     flex: 6;
     background-repeat: no-repeat;
+    background-attachment: local;
     transform-origin: 0 0;
     transform: scale(${props => props.zoomLevel});
 `;
@@ -284,14 +286,16 @@ const Grid = styled.div`
     grid-template-rows: repeat(${props => props.gridSize[1]}, ${props => props.cellSize[1]}px);
     grid-template-columns: repeat(${props => props.gridSize[0]}, ${props => props.cellSize[0]}px);
     font-size: ${props => Math.round(props.cellSize[1]*0.7)}px;
+    margin-top: ${props => props.gridPosition[1]}px;
+    margin-left: ${props => props.gridPosition[0]}px;
 `;
 
 const Cell = styled.div`
-    border: ${props => props.colors.length > 0 ? "2" : "1"}px solid ${props => props.colors[0] || "#000"};
+    border: ${props => props.colors.length > 0 ? "14" : "1"}px solid ${props => props.colors[0] || "rgba(0,0,0,0.0)"};
     border-image: conic-gradient(${props => props.colors.join(", ")});
     border-image-slice: 1;
     text-transform: uppercase;
-    font-family: 'Handlee', cursive;
+    font-family: 'Handlee', sans-serif;;
     box-sizing: border-box;
     caret-color: transparent;
 `;

@@ -5,15 +5,19 @@ import {AppContext} from "../../App";
 import useLocalStorage from 'react-use-localstorage';
 
 export default function CreateCrossword(props) {
-    const {setView} = useContext(AppContext);
-    const [gridPosition, setGridPosition] = useState([0,0]);
-    const [gridSize, setGridSize] = useState([10,10]);
-    const [gridSchema, setGridSchema] = useState([]);
-    const [gridData, setGridData] = useState([]);
-    const [cellSize, setCellSize] = useState([20,20]);
-    const [image, setImage] = useState("");
-    const [name, setName] = useState("");
-    const [crosswords, setCrosswords] = useLocalStorage('crosswords', '{}');
+    const {setView, crosswordName} = useContext(AppContext);
+    const [crosswordsStr, setCrosswords] = useLocalStorage('crosswords', '{}');
+    const crosswords = JSON.parse(crosswordsStr);
+    let crossword = crosswords[crosswordName];
+
+    const [gridPosition, setGridPosition] = useState(crossword?.gridPosition || [0,0]);
+    const [gridSize, setGridSize] = useState(crossword?.gridSize || [10,10]);
+    const [gridSchema, setGridSchema] = useState(crossword?.gridSchema || []);
+    const [gridData, setGridData] = useState(crossword?.gridData || []);
+    const [cellSize, setCellSize] = useState(crossword?.cellSize || [20,20]);
+    const [image, setImage] = useState(crossword?.image || "");
+    const [name, setName] = useState(crossword?.name || "");
+    const [zoomLevel, setZoomLevel] = useState(1);
 
     const getI = (x,y) => y*gridSize[0]+x;
     const getX = (i) => Math.round((i/gridSize[0] % 1) * gridSize[0]);
@@ -42,7 +46,7 @@ export default function CreateCrossword(props) {
             return;
         }
 
-        let json = JSON.parse(crosswords);
+        let json = JSON.parse(crosswordsStr);
         //TODO confirm existing overwrite
         json[name] = {
             gridPosition, gridSize, gridSchema, gridData, cellSize, image, name, isSave: false
@@ -50,6 +54,22 @@ export default function CreateCrossword(props) {
         setCrosswords(JSON.stringify(json))
         setView("StartScreen");
     };
+
+    const handleArrowKeys = e => {
+        if (e.ctrlKey || e.metaKey || e.altKey) {
+            switch (e.keyCode) {
+                case 38: setZoomLevel(prev => prev*0.75); break; // up
+                case 40: setZoomLevel(prev => prev*1.5); break; // down
+            }
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleArrowKeys);
+        return () => {
+            window.removeEventListener("keydown", handleArrowKeys);
+        }
+    }, []);
 
     return <FlexContainer>
         <Toolbar>
@@ -70,10 +90,11 @@ export default function CreateCrossword(props) {
             <Button onClick={saveCrossword}>Save crossword</Button>
             <Button onClick={() => setView("StartScreen")}>Back</Button>
         </Toolbar>
-        <GridContainer style={{backgroundImage: `url('${image}')`}}>
+        <GridContainer style={{backgroundImage: `url('${image}')`}} zoomLevel={zoomLevel}>
             <Grid
                 gridSize={gridSize}
                 cellSize={cellSize}
+                gridPosition={gridPosition}
             >{gridData.map((letter, i) => (
                 <Cell
                     key={i}
@@ -91,17 +112,21 @@ export default function CreateCrossword(props) {
 const FlexContainer = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    //justify-content: center;
     align-items: start;
 `;
 const Toolbar = styled.div`
     flex: 1;
+    position: sticky;
+    top: 0;
 `;
 
 const GridContainer = styled.div`
     flex: 6;
-    overflow: auto;
     background-repeat: no-repeat;
+    background-attachment: local;
+    transform-origin: 0 0;
+    transform: scale(${props => props.zoomLevel});
 `;
 
 
@@ -109,6 +134,8 @@ const Grid = styled.div`
     display: grid;
     grid-template-rows: repeat(${props => props.gridSize[1]}, ${props => props.cellSize[1]}px);
     grid-template-columns: repeat(${props => props.gridSize[0]}, ${props => props.cellSize[0]}px);
+    margin-top: ${props => props.gridPosition[1]}px;
+    margin-left: ${props => props.gridPosition[0]}px;
 `;
 
 const Cell = styled.div`
