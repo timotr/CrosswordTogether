@@ -1,10 +1,10 @@
 const WebSocketServer = require('ws');
 
-const wss = new WebSocketServer.Server({ port: 3001 })
+const wss = new WebSocketServer.Server({ port: 3008 })
 
 let rooms = {};
 const roomTimeout = 1000*60*30; // 30 min
-const playerTimeout = 1000*30; // 30 sec
+const playerTimeout = 1000*60; // 60 sec
 const playerConnections = {};
 const playerLastMessage = {};
 

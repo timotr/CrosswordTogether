@@ -11,7 +11,7 @@ export default function StartScreen(props) {
 
     return <FlexContainer>
         <Column className="flex-rows">
-            <h1>Crossword together</h1>
+            <h1>Crossword Together</h1>
             <Button onClick={() => setView("CreateGame")}>Start a new game</Button>
             <Button onClick={() => setView("JoinGame")}>Join a game</Button>
             <Button onClick={() => setView("CreateCrossword")}>Create a new crossword</Button>

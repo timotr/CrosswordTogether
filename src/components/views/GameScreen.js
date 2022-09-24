@@ -7,6 +7,7 @@ import {Column} from "../Layouts";
 import {toast} from "react-toastify";
 
 export default function GameScreen(props) {
+    const masterServer = localStorage.getItem('masterServer') ?? "ws://troosa:ddns.net:3008";
     const {setView, ws, setWs, crosswordName, player, setPlayer, room, setRoom} = useContext(AppContext);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -114,7 +115,7 @@ export default function GameScreen(props) {
 
     // Create new room
     useEffect(() => {
-        const ws = new WebSocket("ws://192.168.1.5:3001");
+        const ws = new WebSocket(masterServer);
         ws.addEventListener("open", () => {
             console.log("We are connected");
             ws.addEventListener("message", handleIncomingMessage);
