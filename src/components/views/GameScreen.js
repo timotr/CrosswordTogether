@@ -7,7 +7,7 @@ import {Column} from "../Layouts";
 import {toast} from "react-toastify";
 
 export default function GameScreen(props) {
-    const masterServer = localStorage.getItem('masterServer') ?? "ws://troosa:ddns.net:3008";
+    const masterServer = localStorage.getItem('masterServer') ?? "ws://troosa.ddns.net:3008";
     const {setView, ws, setWs, crosswordName, player, setPlayer, room, setRoom} = useContext(AppContext);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
